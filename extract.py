@@ -2,50 +2,87 @@ import cv2
 import numpy as np
 
 
-HEIGHT = 900
+IMG_HEIGHT = 900
+ROW_HEIGHT = 50
 
 
-def image_resize(image, height):
+def image_resize(image, width=None, height=None):
     (h, w) = image.shape[:2]
-    r = height / h
-    dim = (int(w * r), height)
+    if width is None:
+        r = height / float(h)
+        dim = (int(w * r), height)
+    else:
+        r = width / float(w)
+        dim = (width, int(h * r))
+
     resized = cv2.resize(image, dim)
     return resized
 
 
-img = cv2.imread("test1.png")
-resized = image_resize(img, HEIGHT)
-gray = cv2.cvtColor(resized, cv2.COLOR_RGB2GRAY)
+def split_img_into_rows(thresh, original):
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=(100, 1))
 
-blur = cv2.GaussianBlur(gray, (3, 3), cv2.BORDER_DEFAULT)
-cv2.imshow("Blur", blur)
-cv2.waitKey(0)
+    dilation = cv2.dilate(thresh, kernel, iterations=1)
+    closing = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, kernel)
+    contours, _ = cv2.findContours(closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-ret, thresh = cv2.threshold(blur, 210, 255, cv2.THRESH_BINARY_INV)
-cv2.imshow("Threshold", thresh)
-cv2.waitKey(0)
+    thresh_rows = []
+    original_rows = []
+    for c in reversed(contours):
+        area = cv2.contourArea(c)
+        if area > 2.5 * IMG_HEIGHT:
+            x, y, w, h = cv2.boundingRect(c)
+            thresh_rows.append(thresh[y : y + h, x : x + w])
+            original_rows.append(original[y : y + h, x : x + w])
 
-kernel = np.ones((5, 5), np.uint8)
+    return thresh_rows, original_rows
 
-dilation = cv2.dilate(thresh, kernel, iterations=2)
-cv2.imshow("Dilation", dilation)
-cv2.waitKey(0)
 
-closing = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, kernel)
-cv2.imshow("Closing", closing)
-cv2.waitKey(0)
+def split_rows_into_words(thresh_rows, original_rows):
+    kernel = np.ones((5, 5), np.uint8)
+    words = []
 
-contours, hierarchy = cv2.findContours(
-    closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-)
+    for thresh_row, original_row in zip(thresh_rows, original_rows):
+        thresh_row = image_resize(thresh_row, height=50)
+        original_row = image_resize(original_row, height=50)
 
-to_display = resized
+        dilation = cv2.dilate(thresh_row, kernel, iterations=2)
+        closing = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, kernel)
 
-for c in contours:
-    area = cv2.contourArea(c)
-    if area > 0.5 * HEIGHT:
-        x, y, w, h = cv2.boundingRect(c)
-        to_display = cv2.rectangle(to_display, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        contours, _ = cv2.findContours(
+            closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
 
-cv2.imshow("Final", to_display)
-cv2.waitKey(0)
+        for c in contours:
+            print(cv2.contourArea(c))
+
+        filtered = filter(lambda c: cv2.contourArea(c) > 10 * ROW_HEIGHT, contours)
+        boxes = list(map(lambda c: cv2.boundingRect(c), filtered))
+
+        for b in sorted(boxes, key=lambda b: b[0]):
+            x, y, w, h = b
+            words.append(original_row[y : y + h, x : x + w])
+
+    for word in words:
+        cv2.destroyAllWindows()
+        cv2.imshow("Word", word)
+        cv2.waitKey(0)
+
+    return words
+
+
+def words_from_image(image):
+    resized = image_resize(image, height=IMG_HEIGHT)
+    gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+
+    blur = cv2.GaussianBlur(gray, (3, 3), cv2.BORDER_DEFAULT)
+    _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    thresh_rows, original_rows = split_img_into_rows(thresh, gray)
+    words = split_rows_into_words(thresh_rows, original_rows)
+
+    return words
+
+
+if __name__ == "__main__":
+    words_from_image(cv2.imread("real1.jpg"))
