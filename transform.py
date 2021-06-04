@@ -48,6 +48,6 @@ class Resize:
             max(min(self.height, int(h / f)), 1),
         )
         img = cv2.resize(img, new_size)
-        target = np.ones((self.height, self.width)) * 255
+        target = np.ones((self.height, self.width), dtype=np.uint8) * 255
         target[0 : new_size[1], 0 : new_size[0]] = img
         return target

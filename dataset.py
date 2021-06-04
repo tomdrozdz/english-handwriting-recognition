@@ -5,11 +5,21 @@ import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 from torchvision import transforms
 
-from transform import Resize, Binarize, Blur, ToGray
+from transform import Resize, Blur, ToGray
 
 
 WORDS_FILE = "./data/words.txt"
 WORDS_FOLDER = "./data/words"
+
+default_transforms = transforms.Compose(
+    [
+        ToGray(),
+        Blur(),
+        Resize(128, 32),
+        transforms.ToTensor(),
+        transforms.Normalize((0.9206,), (0.1546,)),
+    ]
+)
 
 
 def read_data(words_file=WORDS_FILE, words_folder=WORDS_FOLDER):
@@ -48,9 +58,7 @@ class WordDataset(Dataset):
 
 def train_test_data(split=0.9, composed_transforms=None):
     if composed_transforms is None:
-        composed_transforms = transforms.Compose(
-            [ToGray(), Blur(), Binarize(), Resize(128, 32), transforms.ToTensor()]
-        )
+        composed_transforms = default_transforms
 
     paths, words = read_data()
     dataset = WordDataset(paths, words, composed_transforms)
@@ -70,5 +78,34 @@ def train_test_data(split=0.9, composed_transforms=None):
     return train_loader, val_loader
 
 
+def calculate_mean_and_std():
+    composed = transforms.Compose(
+        [
+            ToGray(),
+            Blur(),
+            Resize(128, 32),
+            transforms.ToTensor(),
+        ]
+    )
+
+    paths, words = read_data()
+    dataset = WordDataset(paths, words, composed)
+    loader = DataLoader(dataset, batch_size=10, num_workers=4, shuffle=False)
+
+    mean = 0.0
+    std = 0.0
+    for images, _ in loader:
+        batch_samples = images.size(0)
+        images = images.view(batch_samples, images.size(1), -1)
+        mean += images.mean(2).sum(0)
+        std += images.std(2).sum(0)
+
+    mean /= len(dataset)
+    std /= len(dataset)
+
+    return mean, std
+
+
 if __name__ == "__main__":
-    train, test = train_test_data()
+    mean, std = calculate_mean_and_std()
+    print(f"Mean: {mean}, std: {std}")
