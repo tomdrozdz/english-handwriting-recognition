@@ -51,3 +51,9 @@ class Resize:
         target = np.ones((self.height, self.width), dtype=np.uint8) * 255
         target[0 : new_size[1], 0 : new_size[0]] = img
         return target
+
+
+class ToSinglularBatch:
+    def __call__(self, img):
+        batch = img.unsqueeze(0)
+        return batch
