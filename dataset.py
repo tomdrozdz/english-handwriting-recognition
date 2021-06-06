@@ -10,6 +10,11 @@ from transform import Resize, Blur, ToGray
 
 WORDS_FILE = "./data/words.txt"
 WORDS_FOLDER = "./data/words"
+CHARS = (
+    """!"#&'()*+,-./0123456789:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"""
+)
+char_dict = {char: i + 1 for i, char in enumerate(CHARS)}
+int_dict = {i: char for char, i in char_dict.items()}
 
 default_transforms = transforms.Compose(
     [
@@ -56,7 +61,27 @@ class WordDataset(Dataset):
         return img, word
 
 
-def train_test_data(split=0.9, composed_transforms=None):
+def collate_fn(batch):
+    imgs, words = (list(t) for t in zip(*batch))
+    imgs = torch.stack(imgs, 0)
+
+    input_lengths = torch.full((len(batch),), imgs[0].shape[1], dtype=torch.long)
+
+    target_lengths = [len(word) for word in words]
+    targets = torch.zeros(sum(target_lengths)).long()
+
+    target_lengths = torch.tensor(target_lengths)
+    for j, word in enumerate(words):
+        start = sum(target_lengths[:j])
+        end = target_lengths[j]
+        targets[start : start + end] = torch.tensor(
+            [char_dict[letter] for letter in word]
+        ).long()
+
+    return imgs, (targets, input_lengths, target_lengths)
+
+
+def train_test_data(split=0.95, composed_transforms=None):
     if composed_transforms is None:
         composed_transforms = default_transforms
 
@@ -69,11 +94,15 @@ def train_test_data(split=0.9, composed_transforms=None):
     train_subset, val_subset = random_split(
         dataset,
         [train_size, val_size],
-        generator=torch.Generator().manual_seed(0),
+        generator=torch.Generator().manual_seed(42),
     )
 
-    train_loader = DataLoader(train_subset, batch_size=32, shuffle=True, num_workers=4)
-    val_loader = DataLoader(val_subset, num_workers=4)
+    train_loader = DataLoader(
+        train_subset, batch_size=50, shuffle=True, num_workers=4, collate_fn=collate_fn
+    )
+    val_loader = DataLoader(
+        val_subset, batch_size=50, num_workers=4, collate_fn=collate_fn
+    )
 
     return train_loader, val_loader
 
