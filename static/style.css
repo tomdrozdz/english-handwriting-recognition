@@ -1,0 +1,24 @@
+.main {
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.button {
+  margin: 40px;
+  background-color: #008cba;
+  border: 1px solid black;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.results {
+  margin: 0 10vw;
+}
+
+.type {
+  margin-top: 30px;
+}

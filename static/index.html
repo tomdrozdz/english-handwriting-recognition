@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text prediction</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script type="text/javascript" src="/static/script.js"></script>
+</head>
+
+<body>
+    <div class="main">
+        <h1>Handwriting recognition service</h1>
+
+        <form id="file-form" method="POST">
+            <input type="file" id="file-select" class="input" />
+            <br>
+            <div class="type">
+                <label for="type">Type: </label>
+                <input type="radio" name="type" value="paragraph" checked="checked">Paragraph</input>
+                <input type="radio" name="type" value="line">Line</input>
+                <input type="radio" name="type" value="word">Word</input>
+            </div>
+        </form>
+
+        <button onclick="uploadImage()" id="upload-button" class="button">Predict text</button>
+
+        <div class="results">
+            <h2 id="result-label"></h2>
+            <p id="result"></p>
+        </div>
+    </div>
+</body>
+
+</html>
