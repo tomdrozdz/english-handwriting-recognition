@@ -131,4 +131,10 @@ dmypy.json
 .pyre/
 
 # Data
-data/
+data/*
+!data/README.md
+
+models/*
+!models/main.pth
+/*.png
+/*.jpg
