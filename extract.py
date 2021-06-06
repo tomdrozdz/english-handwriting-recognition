@@ -53,9 +53,6 @@ def split_rows_into_words(thresh_rows, original_rows):
             closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
 
-        for c in contours:
-            print(cv2.contourArea(c))
-
         filtered = filter(lambda c: cv2.contourArea(c) > 10 * ROW_HEIGHT, contours)
         boxes = list(map(lambda c: cv2.boundingRect(c), filtered))
 
@@ -63,20 +60,21 @@ def split_rows_into_words(thresh_rows, original_rows):
             x, y, w, h = b
             words.append(original_row[y : y + h, x : x + w])
 
-    for word in words:
-        cv2.destroyAllWindows()
-        cv2.imshow("Word", word)
-        cv2.waitKey(0)
-
     return words
 
 
-def words_from_image(image):
-    resized = image_resize(image, height=IMG_HEIGHT)
+def preprocess(image, height):
+    resized = image_resize(image, height=height)
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
 
     blur = cv2.GaussianBlur(gray, (3, 3), cv2.BORDER_DEFAULT)
     _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    return thresh, gray
+
+
+def words_from_image(image):
+    thresh, gray = preprocess(image, IMG_HEIGHT)
 
     thresh_rows, original_rows = split_img_into_rows(thresh, gray)
     words = split_rows_into_words(thresh_rows, original_rows)
@@ -84,5 +82,23 @@ def words_from_image(image):
     return words
 
 
+def words_from_line(line):
+    thresh, gray = preprocess(line, ROW_HEIGHT)
+
+    words = split_rows_into_words([thresh], [gray])
+    return words
+
+
+def transform_word(word):
+    resized = image_resize(word, height=ROW_HEIGHT)
+    gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+    return [gray]
+
+
 if __name__ == "__main__":
-    words_from_image(cv2.imread("real1.jpg"))
+    img = cv2.imread("examples/paragraph.png")
+    words = words_from_image(img)
+    for word in words:
+        cv2.destroyAllWindows()
+        cv2.imshow("Word", word)
+        cv2.waitKey(0)
