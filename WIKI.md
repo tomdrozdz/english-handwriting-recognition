@@ -1,4 +1,4 @@
-# Algorytm IDW
+# Rozpoznawanie tekstu odręcznego
 
 [1. Opis](#1-opis)
 
@@ -15,6 +15,23 @@
 [7. Linki](#7-linki)
 
 ## 1. Opis
+
+Sieć neuronowa stworzona w projekcie umożliwia rozpoznawanie pisma odręcznego i przekształcanie je na tekst. Sieć przymuje zdjęcia pojedynczych słów w formacie 128x32. Na wyjściu otrzymywana jest macierz o wymiarach 32x80:
+
+- Sieć potrafi rozpoznać 79 znaków: `!"#&'()*+,-./0123456789:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`. Dodatkowo, jedno pole zostało zarezerwowane na określenie braku znaku na danym miejscu.
+- Maksymalna długość słowa, jaka może zostać rozpoznana to 32.
+
+Sieć składa się z dwóch części:
+
+- sieć CNN, odpowiedzialna za ekstrakcję cech z zdjęcia, przekształcająca zdjęcie wejściowe z wielkości 128x32 do 32x256. Zatem na każdy z możliwych do rozpoznania 32 znaków przypada 256 cech.
+
+- sieć RNN, odpowiedzialna za właściwe rozpoznawanie znaków z wyekstraktowanych cech. Przyjmuje ona wyjście z sieci CNN o rozmiarze 32x256 i przekształca je do wymiarów 32x80. Pozwala to na późniejsze odkodowanie najbardziej prawdopodobnych znaków.
+
+Przed przejściem przez sieć neuronową, zdjęcia są odpowiednio przekształcane przez transoformacje z pliku [`transform.py`](src/transform.py)
+
+Do treningu została użyta funkcja straty CTC. Po treningu trwającym 100 epok, został wybrany model, który uzyskał największą dokładność na zbiorze walidacyjnym.
+
+Projekt zawiera również zaimplementowane algorytmy pozwalające na wyodrębnienie poszczególnych słów ze zdjęcia całego akapitu tekstu (plik [`extract.py`](src/extract.py)).
 
 ## 2. Źródła
 
