@@ -1,7 +1,9 @@
 .git
 .gitignore
 **/__pycache__
-examples
 data
+src/data
 Dockerfile
 docker-compose.yml
+*.md
+.vscode
