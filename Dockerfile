@@ -14,7 +14,7 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-ENV GUNICORN_CMD_ARGS="--bind=0.0.0.0:3000 --workers=1 --chdir /service"
+ENV GUNICORN_CMD_ARGS="--bind=0.0.0.0:3000 --workers=1 --chdir /service/src"
 
 EXPOSE 3000
 CMD ["gunicorn", "server:app"]
