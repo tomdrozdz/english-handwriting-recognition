@@ -6,4 +6,4 @@ Projekt ten zawiera implementację sieci neuronowej pozwalającej na rozpoznawan
 
 ## Licencja
 
-Niniejszy algorytm wraz z usługą zostały udostępnione na licencji _Creative Commons Attribution-ShareAlike 4.0 International Public License_. Szczegóły tej licencji można znaleźć w pliku LICENSE
+Niniejszy algorytm wraz z usługą zostały udostępnione na licencji _Creative Commons Attribution-ShareAlike 4.0 International Public License_. Szczegóły tej licencji można znaleźć w pliku [`LICENSE`](LICENSE).
