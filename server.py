@@ -12,7 +12,8 @@ engine = PredictionEngine()
 
 
 def base64_to_cv2_img(encoded):
-    encoded_data = encoded.split(',')[1]
+    split = encoded.split(',')
+    encoded_data = split[1] if len(split) == 2 else split[0]
     nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     return img
@@ -36,14 +37,17 @@ def predict_request():
     if img_type not in img_types:
         return jsonify(f"Missing attribute 'type' with possible values {img_types}")
 
-    img = base64_to_cv2_img(encoded_img)
-    text = engine.predict_image(img, img_type)
+    try:
+        img = base64_to_cv2_img(encoded_img)
+    except Exception:
+        return jsonify("Unable to decode the image from base64")
 
+    text = engine.predict_image(img, img_type)
     return jsonify(text=text)
 
 
 def main():
-    app.run("0.0.0.0", port=80)
+    app.run("0.0.0.0", port=3000, debug=True)
 
 
 if __name__ == "__main__":
