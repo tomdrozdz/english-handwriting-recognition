@@ -1,20 +1,20 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.9.5-buster
+FROM python:3.9.5-slim
 
 WORKDIR /service
 
 RUN apt-get update
-RUN apt-get install libgl1-mesa-glx libsm6 libxext6 -y
+RUN apt-get install libgl1-mesa-glx libsm6 libxext6 build-essential -y
 
 COPY requirements.txt requirements.txt
 
-RUN pip3 install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip3 install torch==1.8.1+cpu torchvision==0.9.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
 RUN pip3 install -r requirements.txt
 
-COPY *.py .
-COPY models/accuracy_best.pth models/main.pth
-COPY static/ static/
+COPY . .
 
-EXPOSE 80
-CMD ["python3", "server.py"]
+ENV GUNICORN_CMD_ARGS="--bind=0.0.0.0:3000 --workers=4 --chdir /service"
+
+EXPOSE 3000
+CMD ["gunicorn", "server:app"]

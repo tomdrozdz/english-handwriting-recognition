@@ -1,0 +1,7 @@
+services:
+    service:
+      build: .
+      container_name: service
+      image: service
+      ports:
+        - 3000:3000
