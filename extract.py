@@ -43,8 +43,8 @@ def split_rows_into_words(thresh_rows, original_rows):
     words = []
 
     for thresh_row, original_row in zip(thresh_rows, original_rows):
-        thresh_row = image_resize(thresh_row, height=50)
-        original_row = image_resize(original_row, height=50)
+        thresh_row = image_resize(thresh_row, height=ROW_HEIGHT)
+        original_row = image_resize(original_row, height=ROW_HEIGHT)
 
         dilation = cv2.dilate(thresh_row, kernel, iterations=2)
         closing = cv2.morphologyEx(dilation, cv2.MORPH_CLOSE, kernel)
@@ -96,8 +96,8 @@ def transform_word(word):
 
 
 if __name__ == "__main__":
-    img = cv2.imread("examples/paragraph.png")
-    words = words_from_image(img)
+    img = cv2.imread("examples/123.png")
+    words = words_from_line(img)
     for word in words:
         cv2.destroyAllWindows()
         cv2.imshow("Word", word)
