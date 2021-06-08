@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.9.5-slim
+FROM python:3.9.5-buster
 
 WORKDIR /service
 
@@ -14,7 +14,7 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-ENV GUNICORN_CMD_ARGS="--bind=0.0.0.0:3000 --workers=4 --chdir /service"
+ENV GUNICORN_CMD_ARGS="--bind=0.0.0.0:3000 --workers=1 --chdir /service"
 
 EXPOSE 3000
 CMD ["gunicorn", "server:app"]
