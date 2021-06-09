@@ -12,7 +12,8 @@ engine = PredictionEngine()
 
 
 def base64_to_cv2_img(encoded):
-    split = encoded.split(',')
+    """Tries to decode base64 encoded image and read it using opencv2."""
+    split = encoded.split(",")
     encoded_data = split[1] if len(split) == 2 else split[0]
     nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -21,11 +22,17 @@ def base64_to_cv2_img(encoded):
 
 @app.route("/")
 def frontend():
+    """Endpoint for accessing the main frontend page."""
     return app.send_static_file("index.html")
 
 
 @app.route("/predict", methods=["POST"])
 def predict_request():
+    """
+    Endpoint for making requests for text prediction. Accpets JSON data with base64
+    encoded image and type of the image. Returns the predicted text or appropriate
+    error message.
+    """
     if not request.is_json:
         return jsonify("JSON data is required for this endpoint")
 
@@ -47,6 +54,7 @@ def predict_request():
 
 
 def main():
+    """Run the server in debug mode."""
     app.run("0.0.0.0", port=3000, debug=True)
 
 

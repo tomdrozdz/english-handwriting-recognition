@@ -5,6 +5,11 @@ from dataset import int_dict
 
 
 class CTCWrapper:
+    """
+    Class wrapping the PyTorch CTC loss function to work with current dataloader and
+    fastai library.
+    """
+
     def __init__(self, ctc_loss_func):
         self.loss_func = ctc_loss_func
 
@@ -16,6 +21,10 @@ class CTCWrapper:
 
 
 def distance_wrapper(pred, actual):
+    """
+    Custom metric used by fastai during training of the neural network. Describes
+    the average Levenshtein distance between words in a batch decoded by the model.
+    """
     decoded = Model.decode(pred)
     targets, _, lengths = actual
 
@@ -33,6 +42,10 @@ def distance_wrapper(pred, actual):
 
 
 def accuracy_wrapper(pred, actual):
+    """
+    Custom metric used by fastai during training of the neural network.
+    Describes the accuracy of the model on words from a batch.
+    """
     decoded = Model.decode(pred)
     targets, _, lengths = actual
 

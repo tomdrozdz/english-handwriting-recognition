@@ -7,6 +7,7 @@ from dataset import int_dict
 
 class CNN(nn.Module):
     def __init__(self):
+        """Initialize the layers of the CNN."""
         super(CNN, self).__init__()
 
         self.channels = [(1, 32), (32, 64), (64, 128), (128, 128), (128, 256)]
@@ -36,6 +37,7 @@ class CNN(nn.Module):
         self.layer1, self.layer2, self.layer3, self.layer4, self.layer5 = self.layers
 
     def forward(self, x):
+        """Forward a batch through the layers of the neural network."""
         out = self.layers[0](x)
 
         for layer in self.inner_layers:
@@ -47,6 +49,7 @@ class CNN(nn.Module):
 
 class RNN(nn.Module):
     def __init__(self):
+        """Initialize the layers of the RNN."""
         super(RNN, self).__init__()
         self.lstm = nn.LSTM(
             input_size=256,
@@ -58,6 +61,7 @@ class RNN(nn.Module):
         self.atrous_conv = nn.Conv2d(512, 80, kernel_size=1, dilation=1)
 
     def forward(self, x):
+        """Forward a batch through the layers of the neural network."""
         out, _ = self.lstm(x)
         out = self.atrous_conv(out.permute(0, 2, 1).unsqueeze(3))
 
@@ -67,17 +71,22 @@ class RNN(nn.Module):
 
 class Model(nn.Module):
     def __init__(self):
+        """Initialize the layers of the neural network."""
         super(Model, self).__init__()
         self.cnn = CNN()
         self.rnn = RNN()
 
     def forward(self, x):
+        """Forward a batch through the layers of the neural network."""
         out = self.cnn(x)
         out = self.rnn(out)
         return out
 
     @staticmethod
     def decode(out):
+        """
+        Decode the output of the neural network into strings with the predicted words.
+        """
         with torch.no_grad():
             softmax_out = out.softmax(2).argmax(2).permute(1, 0).cpu().numpy()
             words = []

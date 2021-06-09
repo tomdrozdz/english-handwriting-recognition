@@ -3,12 +3,16 @@ import numpy as np
 
 
 class ToGray:
+    """Convert the image to grayscale."""
+
     def __call__(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         return gray
 
 
 class Blur:
+    """Blur the image to smoothen out sharp edges."""
+
     def __init__(self, kernel=None):
         if kernel is None:
             self.kernel = (5, 5)
@@ -21,6 +25,8 @@ class Blur:
 
 
 class Binarize:
+    """Convert the image to black and white."""
+
     def __init__(self, white_text=False):
         if white_text:
             self.method = cv2.THRESH_BINARY_INV
@@ -33,6 +39,11 @@ class Binarize:
 
 
 class Resize:
+    """
+    Resize the image to set width and height while keeping the aspect ratio.
+    The remaining space is filled with color white.
+    """
+
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -54,6 +65,8 @@ class Resize:
 
 
 class ToSinglularBatch:
+    """Convert singular image to a batch of size one."""
+
     def __call__(self, img):
         batch = img.unsqueeze(0)
         return batch

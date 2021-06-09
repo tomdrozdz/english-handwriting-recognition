@@ -11,6 +11,7 @@ loss_func = CTCWrapper(nn.CTCLoss(reduction="mean", zero_infinity=True))
 
 
 def main():
+    """Train the neural network using the default parameters."""
     train, val = train_test_data()
     dataloaders = DataLoaders(train, val)
     model = Model()

@@ -28,6 +28,11 @@ default_transforms = transforms.Compose(
 
 
 def read_data(words_file=WORDS_FILE, words_folder=WORDS_FOLDER):
+    """
+    Reads data from the data folder, using the structure described in its README.
+    Wokrs best with the IAM Dataset. SKips over files that are corrupted in
+    the IAM Dataset. Returns two lists of file paths and labels.
+    """
     paths_list = []
     words_list = []
     broken_iam_files = {"a01-117-05-02", "r06-022-03-05"}
@@ -45,6 +50,11 @@ def read_data(words_file=WORDS_FILE, words_folder=WORDS_FOLDER):
 
 
 class WordDataset(Dataset):
+    """
+    PyTorch Dataset class adapted to the custom dataset. Reads the image from given
+    path every time it is called.
+    """
+
     def __init__(self, paths, words, transform):
         self.paths = paths
         self.words = words
@@ -62,6 +72,12 @@ class WordDataset(Dataset):
 
 
 def collate_fn(batch):
+    """
+    Custom collate_fn function for the PyTorch DataLoader. Must be used because of
+    the different lengths of labels present in the dataset. Returns batches of images,
+    labels encoded as integers, lengths of the inputs (always the same) and lengths
+    of the labels.
+    """
     imgs, words = (list(t) for t in zip(*batch))
     imgs = torch.stack(imgs, 0)
 
@@ -71,9 +87,9 @@ def collate_fn(batch):
     targets = torch.zeros(sum(target_lengths)).long()
 
     target_lengths = torch.tensor(target_lengths)
-    for j, word in enumerate(words):
-        start = sum(target_lengths[:j])
-        end = target_lengths[j]
+    for i, word in enumerate(words):
+        start = sum(target_lengths[:i])
+        end = target_lengths[i]
         targets[start : start + end] = torch.tensor(
             [char_dict[letter] for letter in word]
         ).long()
@@ -82,6 +98,10 @@ def collate_fn(batch):
 
 
 def train_test_data(split=0.95, composed_transforms=None):
+    """
+    Splits data in proportions according to the split parameter and returns train and
+    validation PyTorch data loaders.
+    """
     if composed_transforms is None:
         composed_transforms = default_transforms
 
@@ -108,6 +128,10 @@ def train_test_data(split=0.95, composed_transforms=None):
 
 
 def calculate_mean_and_std():
+    """
+    Function used to calculate mean and standard deviation of the images. Function was
+    run before the training and the values were put into the Normalize transformation.
+    """
     composed = transforms.Compose(
         [
             ToGray(),

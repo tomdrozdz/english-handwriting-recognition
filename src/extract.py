@@ -7,6 +7,9 @@ ROW_HEIGHT = 50
 
 
 def image_resize(image, width=None, height=None):
+    """
+    Resizes an image to one of the given dimensions while keeping the aspect ratio.
+    """
     (h, w) = image.shape[:2]
     if width is None:
         r = height / float(h)
@@ -20,6 +23,11 @@ def image_resize(image, width=None, height=None):
 
 
 def split_img_into_rows(thresh, original):
+    """
+    Splits the image into lines using dilation and contours. Only returns
+    rectangles from the original image with a minimum area. Sorts the row from
+    top to bottom.
+    """
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=(100, 1))
 
     dilation = cv2.dilate(thresh, kernel, iterations=1)
@@ -39,6 +47,11 @@ def split_img_into_rows(thresh, original):
 
 
 def split_rows_into_words(thresh_rows, original_rows):
+    """
+    Splits the lines into individual words using dilation and contours. Only returns
+    rectangles from the original image with a minimum area. Sorts the words from
+    left to right.
+    """
     kernel = np.ones((5, 5), np.uint8)
     words = []
 
@@ -64,6 +77,10 @@ def split_rows_into_words(thresh_rows, original_rows):
 
 
 def preprocess(image, height):
+    """
+    Transforms an image of handwriting into a binary version so that it can be used to
+    split the handwriting into individual words.
+    """
     resized = image_resize(image, height=height)
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
 
@@ -74,6 +91,11 @@ def preprocess(image, height):
 
 
 def words_from_image(image):
+    """
+    Splits a received image of a paragraph of handwriting into individual lines, then
+    splits the lines into individual words and prepares them to be inputted into
+    the neural network.
+    """
     thresh, gray = preprocess(image, IMG_HEIGHT)
 
     thresh_rows, original_rows = split_img_into_rows(thresh, gray)
@@ -83,6 +105,10 @@ def words_from_image(image):
 
 
 def words_from_line(line):
+    """
+    Splits a received image of a line of handwriting into individual words and prepares
+    them to be inputted into the neural network.
+    """
     thresh, gray = preprocess(line, ROW_HEIGHT)
 
     words = split_rows_into_words([thresh], [gray])
@@ -90,6 +116,9 @@ def words_from_line(line):
 
 
 def transform_word(word):
+    """
+    Prepares a received image of a single word to be inputted into the neural network.
+    """
     resized = image_resize(word, height=ROW_HEIGHT)
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
     return [gray]
