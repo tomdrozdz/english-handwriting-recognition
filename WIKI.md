@@ -95,7 +95,13 @@ Udostępniony został również kod użyty do treningu usługi, który można ur
 
 ## 6. Opis sposobu uruchomienia usługi
 
-Obraz można zbudować z poziomu głównego folderu projektu za pomocą polecenia:
+Obraz można uruchomić za pomocą polecenia:
+
+```bash
+docker run -p PORT_ZEWNĘTRZNY:3000 tomdrozdz/handwriting
+```
+
+Obraz można również zbudować z poziomu głównego folderu projektu za pomocą polecenia:
 
 ```bash
 docker build --tag nazwa .
@@ -128,6 +134,10 @@ python train.py
 ```
 
 ## 7. Linki
+
+- nazwa obrazu w repozytorium obrazów
+
+  - [`tomdrozdz/handwriting`](https://hub.docker.com/repository/docker/tomdrozdz/handwriting)
 
 - artykuł na podstawie którego została stworzona sieć neuronowa
 
