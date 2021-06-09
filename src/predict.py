@@ -62,6 +62,6 @@ if __name__ == "__main__":
     import cv2
 
     engine = PredictionEngine()
-    img = cv2.imread("examples/paragraph.png")
+    img = cv2.imread("../data/paragraph.png")
     text = engine.predict_image(img, "paragraph")
     print(text)

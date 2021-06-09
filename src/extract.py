@@ -125,7 +125,7 @@ def transform_word(word):
 
 
 if __name__ == "__main__":
-    img = cv2.imread("examples/paragraph.png")
+    img = cv2.imread("../data/paragraph.png")
     words = words_from_image(img)
     for word in words:
         cv2.destroyAllWindows()
